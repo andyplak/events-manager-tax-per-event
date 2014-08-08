@@ -55,8 +55,10 @@ function render_tax_meta_box() {
     <label for="event_tax_rate"><strong>Event Tax Rate</strong></label><br />
     <input type="number" name="event_tax_rate" min="0" max="100"
       value="<?php echo $event_tax ?>">%<br />
-    <?php if( !empty( $event_tax ) ) : ?>
+    <?php if( !empty( $event_tax ) || is_numeric( $event_tax ) ) : ?>
       <em>Leave blank to revert to global tax setting.</em>
+    <?php else: ?>
+      <em>Enter 0 for no tax.</em>
     <?php endif; ?>
   </p>
   <?php
@@ -86,8 +88,18 @@ function em_tax_save_post($post_id, $post) {
     delete_post_meta( $post->ID, '_event_tax_rate' );
   }
 
-
 }
 add_action('save_post', 'em_tax_save_post', 1, 2);
 
 
+/**
+ * Hook in and modify tax rate for booking if set per event
+ */
+function em_tax_event_get_tax_rate( $tax_rate, $EM_Event ) {
+  $event_tax = get_post_meta( $EM_Event->post_id, '_event_tax_rate', true );
+  if( !empty( $event_tax ) || is_numeric( $event_tax ) ) {
+    return $event_tax;
+  }
+  return $tax_rate;
+}
+add_filter('em_event_get_tax_rate', 'em_tax_event_get_tax_rate', 10, 2);
