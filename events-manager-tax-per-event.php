@@ -103,3 +103,79 @@ function em_tax_event_get_tax_rate( $tax_rate, $EM_Event ) {
   return $tax_rate;
 }
 add_filter('em_event_get_tax_rate', 'em_tax_event_get_tax_rate', 10, 2);
+
+
+/****************** Ticket Price display mods ********************/
+
+
+/**
+ * Hook into em-tickets where ticket columns are defined.
+ * Remove price and add net + gross
+ */
+function em_tax_booking_form_tickets_cols($columns, $EM_Event) {
+
+  $columns = array(
+    'type' => 'Ticket Type',
+    'net' => 'Net',
+    'tax' => 'Tax',
+    'price' => 'Price',
+    'spaces' => 'Spaces',
+  );
+  return $columns;
+}
+// Hook in early as we're generating array from scratch
+add_filter('em_booking_form_tickets_cols', 'em_tax_booking_form_tickets_cols', 1, 2);
+
+
+/**
+ * Display single ticket net price
+ */
+function em_tax_booking_form_ticket_field_net( $EM_Ticket, $EM_Event ) {
+  ?>
+  <p class="ticket-net">
+    <label>Net</label>
+    <strong><?php echo $EM_Ticket->get_price_without_tax(true); ?></strong>
+  </p>
+  <?php
+}
+add_action('em_booking_form_ticket_field_net', 'em_tax_booking_form_ticket_field_net', 10, 2);
+
+
+/**
+ * Display single ticket tax
+ */
+function em_tax_booking_form_ticket_field_tax( $EM_Ticket, $EM_Event ) {
+
+  $tax = $EM_Ticket->get_price_with_tax() - $EM_Ticket->get_price_without_tax();
+  ?>
+  <p class="ticket-tax">
+    <label>Tax</label>
+    <strong><?php echo $EM_Ticket->format_price( $tax ); ?></strong>
+  </p>
+  <?php
+}
+add_action('em_booking_form_ticket_field_tax', 'em_tax_booking_form_ticket_field_tax', 10, 2);
+
+
+/**
+ * Display ticket table net price
+ */
+function em_tax_booking_form_tickets_col_net( $EM_Ticket, $EM_Event ) {
+  ?>
+  <td class="em-bookings-ticket-table-net"><?php echo $EM_Ticket->get_price_without_tax(true); ?></td>
+  <?php
+}
+add_action('em_booking_form_tickets_col_net', 'em_tax_booking_form_tickets_col_net', 10, 2);
+
+
+/**
+ * Display ticket table tax
+ */
+function em_tax_booking_form_tickets_col_tax( $EM_Ticket, $EM_Event ) {
+
+  $tax = $EM_Ticket->get_price_with_tax() - $EM_Ticket->get_price_without_tax();
+  ?>
+  <td class="em-bookings-ticket-table-tax"><?php echo $EM_Ticket->format_price( $tax ); ?></td>
+  <?php
+}
+add_action('em_booking_form_tickets_col_tax', 'em_tax_booking_form_tickets_col_tax', 10, 2);
