@@ -114,13 +114,22 @@ add_filter('em_event_get_tax_rate', 'em_tax_event_get_tax_rate', 10, 2);
  */
 function em_tax_booking_form_tickets_cols($columns, $EM_Event) {
 
-  $columns = array(
-    'type' => 'Ticket Type',
-    'net' => 'Net',
-    'tax' => 'Tax',
-    'price' => 'Price',
-    'spaces' => 'Spaces',
-  );
+  if( get_option('dbem_bookings_tax_auto_add') ) {
+    $columns = array(
+      'type' => 'Ticket Type',
+      'net' => 'Net',
+      'tax' => 'Tax',
+      'price' => 'Price',
+      'spaces' => 'Spaces',
+    );
+  }else{
+    $columns = array(
+      'type' => 'Ticket Type',
+      'price' => 'Price',
+      'tax' => 'Tax',
+      'spaces' => 'Spaces',
+    );
+  }
   return $columns;
 }
 // Hook in early as we're generating array from scratch
