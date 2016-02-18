@@ -3,7 +3,7 @@
  * Plugin Name: Events Manager - Tax Per Event
  * Plugin URI: https://github.com/andyplak/events-manager-tax-per-event
  * Description: Plugin for Events Manager that allows the booking tax settings to be overridden per event.
- * Version: 1.0
+ * Version: 1.1
  * Text Domain: em-tax-per-event
  * Domain Path: /languages
  * Author: Andy Place
