@@ -4,10 +4,17 @@
  * Plugin URI: https://github.com/andyplak/events-manager-tax-per-event
  * Description: Plugin for Events Manager that allows the booking tax settings to be overridden per event.
  * Version: 1.0
+ * Text Domain: em-tax-per-event
+ * Domain Path: /languages
  * Author: Andy Place
  * Author URI: http://www.andyplace.co.uk
  * License: GPL2
  */
+
+function em_tax_init() {
+  load_plugin_textdomain( 'em-tax-per-event', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
+}
+add_action('plugins_loaded', 'em_tax_init');
 
 /**
  * Add metabox to events editor that allows us to configure the tax
@@ -16,7 +23,7 @@ function em_tax_adding_custom_meta_boxes( $post ) {
 
   add_meta_box(
     'em-event-tax',
-    __( 'Tax Rules' ),
+    __( 'Tax Rules', 'em-tax-per-event' ),
     'render_tax_meta_box',
     'event',
     'side',
@@ -34,31 +41,33 @@ function render_tax_meta_box() {
   global $post;
 
   if( get_option('dbem_multiple_bookings', 0) ) {
-    _e('Tax cannot be set per event when multiple bookings mode is enabled.');
+    _e('Tax cannot be set per event when multiple bookings mode is enabled.', 'em-tax-per-event' );
     return;
   }
 
   $event_tax = get_post_meta( $post->ID, '_event_tax_rate', true );
 
   ?>
-  <p>To override the global tax settings for this event, adjust the settings below.</p>
-  <strong>Global Settings:</strong><br />
+  <p><?php _e('To override the global tax settings for this event, adjust the settings below.', 'em-tax-per-event') ?></p>
+  <strong><?php _e('Global Settings', 'em-tax-per-event') ?>:</strong><br />
   <?php if( get_option('dbem_bookings_tax_auto_add') ) : ?>
-    Add tax to ticket price<br />
+    <?php _e('Add tax to ticket price', 'em-tax-per-event') ?>
   <?php else: ?>
-    Ticket price is inclusive of tax rate.
+    <?php _e('Ticket price is inclusive of tax rate', 'em-tax-per-event') ?>
   <?php endif; ?>
   <br />
-  Tax rate: <?php echo get_option('dbem_bookings_tax') ?>%<br />
+  <?php _e('Tax rate', 'em-tax-per-event') ?>: <?php echo get_option('dbem_bookings_tax') ?>%<br />
 
   <p>
-    <label for="event_tax_rate"><strong>Event Tax Rate</strong></label><br />
+    <label for="event_tax_rate">
+      <strong><?php _e('Event Tax Rate', 'em-tax-per-event') ?></strong>
+    </label><br />
     <input type="number" name="event_tax_rate" min="0" max="100"
       value="<?php echo $event_tax ?>">%<br />
     <?php if( !empty( $event_tax ) || is_numeric( $event_tax ) ) : ?>
-      <em>Leave blank to revert to global tax setting.</em>
+      <em><?php _e('Leave blank to revert to global tax setting', 'em-tax-per-event') ?>.</em>
     <?php else: ?>
-      <em>Enter 0 for no tax.</em>
+      <em><?php _e('Enter 0 for no tax', 'em-tax-per-event') ?>.</em>
     <?php endif; ?>
   </p>
   <?php
@@ -116,18 +125,18 @@ function em_tax_booking_form_tickets_cols($columns, $EM_Event) {
 
   if( get_option('dbem_bookings_tax_auto_add') ) {
     $columns = array(
-      'type' => 'Ticket Type',
-      'net' => 'Net',
-      'tax' => 'Tax',
-      'price' => 'Price',
-      'spaces' => 'Spaces',
+      'type'   => __('Ticket Type', 'em-tax-per-event'),
+      'net'    => __('Net', 'em-tax-per-event'),
+      'tax'    => __('Tax', 'em-tax-per-event'),
+      'price'  => __('Price', 'em-tax-per-event'),
+      'spaces' => __('Spaces', 'em-tax-per-event'),
     );
   }else{
     $columns = array(
-      'type' => 'Ticket Type',
-      'price' => 'Price',
-      'tax' => 'Tax',
-      'spaces' => 'Spaces',
+      'type'   => __('Ticket Type', 'em-tax-per-event'),
+      'price'  => __('Price', 'em-tax-per-event'),
+      'tax'    => __('Tax', 'em-tax-per-event'),
+      'spaces' => __('Spaces', 'em-tax-per-event'),
     );
   }
   return $columns;
@@ -142,7 +151,7 @@ add_filter('em_booking_form_tickets_cols', 'em_tax_booking_form_tickets_cols', 1
 function em_tax_booking_form_ticket_field_net( $EM_Ticket, $EM_Event ) {
   ?>
   <p class="ticket-net">
-    <label>Net</label>
+    <label><?php _e('Net', 'em-tax-per-event') ?></label>
     <strong><?php echo $EM_Ticket->get_price_without_tax(true); ?></strong>
   </p>
   <?php
@@ -158,7 +167,7 @@ function em_tax_booking_form_ticket_field_tax( $EM_Ticket, $EM_Event ) {
   $tax = $EM_Ticket->get_price_with_tax() - $EM_Ticket->get_price_without_tax();
   ?>
   <p class="ticket-tax">
-    <label>Tax</label>
+    <label><?php _e('Tax', 'em-tax-per-event') ?></label>
     <strong><?php echo $EM_Ticket->format_price( $tax ); ?></strong>
   </p>
   <?php
